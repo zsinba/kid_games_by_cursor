@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREQAAAAAAEAAAEAAAAAEAAAABAAAAEAAAAAAQAAAQAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD8HwAA++8AAPf3AADv+wAA7/sAAP//AAD//wAA+98AAP//AAD//wAA//8AAP//AAD//wAA">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>经典游戏中心</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -65,6 +67,7 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             position: relative;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transform: translateY(30px);
@@ -157,6 +160,7 @@
             font-size: 0.9rem;
             margin-top: 2rem;
             background: rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(5px);
             backdrop-filter: blur(5px);
             border-radius: 15px;
             animation: fadeIn 1s ease-out 1s both;
@@ -332,32 +336,70 @@
         }
 
         // 添加音效和交互
+        function addEventListenerWithFallback(element, event, handler) {
+            try {
+                element.addEventListener(event, handler);
+            } catch (error) {
+                element.attachEvent('on' + event, handler);
+            }
+        }
+
+        function safeCreateBubbles() {
+            try {
+                createBubbles();
+            } catch (error) {
+                console.error('Error creating bubbles:', error);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            createBubbles();
+            // 创建气泡背景
+            safeCreateBubbles();
 
             // 启动背景音乐
-            soundManager.play('background');
+            try {
+                soundManager.play('background');
+            } catch (error) {
+                console.error('Error playing background sound:', error);
+            }
 
             // 音效开关
-            const soundToggle = document.getElementById('soundToggle');
-            const soundIcon = soundToggle.querySelector('i');
+            try {
+                const soundToggle = document.getElementById('soundToggle');
+                const soundIcon = soundToggle.querySelector('i');
 
-            soundToggle.addEventListener('click', () => {
-                const isEnabled = soundManager.toggle();
-                soundIcon.className = isEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
-                soundManager.play('click');
-            });
-
-            // 为游戏卡片添加音效
-            document.querySelectorAll('.game-card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    soundManager.play('hover');
-                });
-
-                card.addEventListener('click', () => {
+                soundToggle.addEventListener('click', () => {
+                    const isEnabled = soundManager.toggle();
+                    soundIcon.className = isEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
                     soundManager.play('click');
                 });
-            });
+            } catch (error) {
+                console.error('Error setting up sound toggle:', error);
+            }
+
+            // 为游戏卡片添加音效
+            try {
+                const cards = document.querySelectorAll('.game-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        try {
+                            soundManager.play('hover');
+                        } catch (error) {
+                            console.error('Error playing hover sound:', error);
+                        }
+                    });
+
+                    card.addEventListener('click', () => {
+                        try {
+                            soundManager.play('click');
+                        } catch (error) {
+                            console.error('Error playing click sound:', error);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error setting up game card events:', error);
+            }
         });
     </script>
 </body>
