@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <main class="game-container">
+        <header class="game-header">
+            <h1>贪吃蛇</h1>
+        </header>
+        <div id="game-board" aria-label="游戏区域"></div>
+        <div class="info-container">
+            <div id="score" aria-live="polite">得分: 0</div>
+            <div id="history" class="history-container">
+                <h3>游戏记录</h3>
+                <ul id="history-list" aria-label="游戏历史记录"></ul>
+            </div>
+        </div>
+        <div class="button-container">
+            <button id="start-btn" class="primary-btn">开始游戏</button>
+            <button id="pause-btn" class="secondary-btn">暂停游戏</button>
+            <button id="back-btn" class="tertiary-btn" onclick="window.location.href='index.html'">返回首页</button>
+        </div>
+    </main>
+    <script src="game.js"></script>
+</body>
+
+</html>

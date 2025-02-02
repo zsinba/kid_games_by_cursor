@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经典游戏中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="soundManager.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-align: center;
+            color: white;
+            margin: 2rem 0 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 2px;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+            margin: auto 0;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+        
+        .game-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .game-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+        
+        .game-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+        
+        .game-card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+            transform: rotate(45deg);
+            transition: all 0.8s ease;
+            opacity: 0;
+        }
+        
+        .game-card:hover .card-header::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+        
+        .card-header .game-icon {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-card:hover .game-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .game-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: white;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            animation: fadeIn 1s ease-out 1s both;
+        }
+        
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #333;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 自定义游戏卡片颜色 */
+        
+        .game-card.snake .card-header {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+        }
+        
+        .game-card.tetris .card-header {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+        
+        .game-card.claw .card-header {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+        /* 添加装饰性背景元素 */
+        
+        .decoration {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="decoration" id="bubbleContainer"></div>
+    <button class="sound-toggle" id="soundToggle">
+        <i class="fas fa-volume-up"></i>
+    </button>
+    <div class="container">
+        <h1>经典游戏中心</h1>
+        <div class="games-grid">
+            <a href="snake.html" class="game-card snake">
+                <div class="card-header">
+                    <i class="fas fa-dragon game-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="game-title">贪吃蛇</div>
+                    <div class="game-description">经典贪吃蛇游戏，考验你的反应能力</div>
+                </div>
+            </a>
+            <a href="tetris.html" class="game-card tetris">
+                <div class="card-header">
+                    <i class="fas fa-cube game-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="game-title">俄罗斯方块</div>
+                    <div class="game-description">考验空间想象力的经典游戏</div>
+                </div>
+            </a>
+            <a href="claw.html" class="game-card claw">
+                <div class="card-header">
+                    <i class="fas fa-hand-scissors game-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="game-title">抓娃娃</div>
+                    <div class="game-description">考验手眼协调的街机游戏</div>
+                </div>
+            </a>
+        </div>
+        <footer class="footer">
+            作者：吴中实验小学三年级 张明玥 & 二年级 张明朵 @ 2025 年 1 月 31 日 Powered by Cursor
+        </footer>
+    </div>
+
+    <script>
+        // 创建气泡背景
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            const bubbleCount = 15;
+
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+
+                // 随机大小
+                const size = Math.random() * 100 + 50;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+
+                // 随机位置
+                bubble.style.left = `${Math.random() * 100}%`;
+
+                // 随机动画延迟
+                bubble.style.animationDelay = `${Math.random() * 20}s`;
+
+                container.appendChild(bubble);
+            }
+        }
+
+        // 添加音效和交互
+        document.addEventListener('DOMContentLoaded', () => {
+            createBubbles();
+
+            // 启动背景音乐
+            soundManager.play('background');
+
+            // 音效开关
+            const soundToggle = document.getElementById('soundToggle');
+            const soundIcon = soundToggle.querySelector('i');
+
+            soundToggle.addEventListener('click', () => {
+                const isEnabled = soundManager.toggle();
+                soundIcon.className = isEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+                soundManager.play('click');
+            });
+
+            // 为游戏卡片添加音效
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    soundManager.play('hover');
+                });
+
+                card.addEventListener('click', () => {
+                    soundManager.play('click');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

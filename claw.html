@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>抓娃娃 - 街机游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .game-info {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        #gameCanvas {
+            width: 100%;
+            height: auto;
+            max-height: calc(90vh - 180px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            object-fit: contain;
+            touch-action: none;
+        }
+        
+        .controls {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6e8efb, #4facfe);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 120px;
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        #score,
+        #chances {
+            color: #4facfe;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        }
+        
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+                border-radius: 15px;
+                max-height: 100vh;
+            }
+            .game-info {
+                padding: 10px 15px;
+                font-size: 16px;
+                justify-content: center;
+            }
+            .controls {
+                gap: 10px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            #gameCanvas {
+                max-height: calc(100vh - 160px);
+            }
+        }
+        /* 移动端虚拟按键 */
+        
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: flex;
+            }
+        }
+        
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        
+        .mobile-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* 优化抓取效果动画 */
+        
+        @keyframes grabEffect {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                filter: brightness(1);
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.8;
+                filter: brightness(1.5);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                filter: brightness(1);
+            }
+        }
+        /* 添加钩子状态提示 */
+        
+        .claw-state {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .claw-state.show {
+            opacity: 1;
+        }
+        /* 优化游戏提示文本 */
+        
+        .instruction-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            text-align: center;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .instruction-text.show {
+            opacity: 1;
+        }
+        
+        .instruction-text .key {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 5px;
+            font-size: 24px;
+        }
+    </style>
+    <script src="soundManager.js"></script>
+    <script src="claw.js"></script>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="game-info">
+            <div>分数: <span id="score">0</span></div>
+            <div>剩余次数: <span id="chances">21</span></div>
+        </div>
+        <div class="claw-state" id="clawState"></div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="instruction-text" id="instruction">
+            使用 <span class="key">←</span> <span class="key">→</span> 移动钩子<br> 按住 <span class="key">空格</span> 开始抓取<br> 松开 <span class="key">空格</span> 钩子会自动下落
+        </div>
+        <div class="controls">
+            <button class="btn" id="startBtn">开始游戏</button>
+            <button class="btn" id="soundBtn">音效: 开</button>
+            <button class="btn" onclick="window.location.href='index.html'">返回首页</button>
+        </div>
+    </div>
+
+    <!-- 修改移动端虚拟按键 -->
+    <div class="mobile-controls">
+        <div class="mobile-btn" id="leftBtn">←</div>
+        <div class="mobile-btn hold-btn" id="actionBtn">⬆</div>
+        <div class="mobile-btn" id="rightBtn">→</div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const instruction = document.getElementById('instruction');
+
+            // 显示初始游戏说明
+            setTimeout(() => {
+                instruction.classList.add('show');
+                setTimeout(() => {
+                    instruction.classList.remove('show');
+                }, 5000); // 延长显示时间到5秒
+            }, 1000);
+
+            // 监听游戏状态变化
+            document.addEventListener('clawStateChange', (e) => {
+                const clawState = document.getElementById('clawState');
+                const states = {
+                    'idle': '准备抓取',
+                    'rising': '钩子上升中',
+                    'dropping': '钩子下落中',
+                    'grabbing': '抓取中',
+                    'returning': '返回中'
+                };
+
+                clawState.textContent = states[e.detail.state] || '';
+                clawState.classList.add('show');
+
+                setTimeout(() => {
+                    clawState.classList.remove('show');
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+
+</html>
